@@ -108,6 +108,10 @@ body {
   display: flex; align-items: center; justify-content: space-between;
 }
 .brand { display: flex; align-items: center; gap: 12px; }
+.brand-logo {
+  width: 34px; height: 34px; border-radius: 10px;
+  box-shadow: var(--sombra);
+}
 .brand-ponto {
   width: 34px; height: 34px; border-radius: 10px;
   background: linear-gradient(135deg, var(--coral), var(--coral-forte));
@@ -261,11 +265,76 @@ body {
 .btn:active { transform: scale(0.97); }
 
 .output {
-  margin: 0; padding: 20px; overflow-y: auto; flex: 1;
+  margin: 0; padding: 20px; overflow-y: auto; flex: 1; width: 100%;
   font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
   font-size: 13.5px; line-height: 1.6; white-space: pre-wrap;
   word-break: break-word; color: var(--texto);
+  background: transparent; border: none; resize: none; outline: none;
 }
+.lgpd-nota {
+  margin: 0; padding: 10px 18px; font-size: 11.5px; color: var(--texto-sec);
+  border-top: 1px solid var(--borda); background: var(--bg-vidro);
+}
+
+/* ---------- painel de histórico ---------- */
+.hist-panel {
+  position: fixed; top: 0; left: 0; bottom: 0; z-index: 60;
+  width: min(380px, 88vw);
+  background: var(--bg-elev); border-right: 1px solid var(--borda);
+  box-shadow: var(--sombra-forte);
+  display: flex; flex-direction: column;
+  animation: hist-entra 0.32s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.hist-panel[hidden] { display: none; }
+.nav-overlay[hidden] { display: none; }
+@keyframes hist-entra { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.hist-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 16px 18px; border-bottom: 1px solid var(--borda);
+}
+.hist-head strong { font-size: 16px; display: block; }
+.hist-sub { font-size: 12px; color: var(--texto-sec); }
+.hist-acoes { display: flex; gap: 6px; align-items: center; }
+.btn-pq { padding: 7px 11px; font-size: 12.5px; border-radius: 9px; }
+.hist-lista { flex: 1; overflow-y: auto; padding: 14px; }
+.hist-vazio { color: var(--texto-sec); font-size: 13.5px; padding: 8px; text-align: center; }
+.hist-grupo { margin-bottom: 16px; }
+.hist-paciente {
+  font-size: 13px; font-weight: 700; color: var(--petroleo-2);
+  padding: 4px 6px; margin-bottom: 6px;
+}
+[data-theme="dark"] .hist-paciente { color: var(--coral); }
+.hist-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  text-align: left; padding: 10px 12px; margin-bottom: 4px;
+  border: 1px solid var(--borda); border-radius: 10px;
+  background: var(--bg); color: var(--texto); cursor: pointer;
+  transition: all var(--transicao);
+}
+.hist-item:hover { border-color: var(--acento); transform: translateX(3px); }
+.hist-data {
+  font-size: 11px; color: var(--texto-sec); font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hist-bloco { font-size: 13px; font-weight: 500; }
+
+/* ---------- toast ---------- */
+.toast {
+  position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(20px);
+  z-index: 120; padding: 11px 20px; border-radius: 999px;
+  background: var(--petroleo); color: #fff; font-size: 13.5px; font-weight: 600;
+  box-shadow: var(--sombra-forte); opacity: 0; pointer-events: none;
+  transition: all 0.3s ease;
+}
+[data-theme="dark"] .toast { background: var(--coral); color: #141414; }
+.toast.visivel { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ---------- badge ML no login ---------- */
+.login-ml {
+  display: inline-flex; align-items: center; gap: 7px;
+  margin: 6px 0 0; font-size: 12.5px; font-weight: 600; color: var(--texto-sec);
+}
+.login-ml img { border-radius: 5px; }
 
 /* ---------- reduzir movimento ---------- */
 @media (prefers-reduced-motion: reduce) {

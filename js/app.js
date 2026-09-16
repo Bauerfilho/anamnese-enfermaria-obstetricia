@@ -187,16 +187,19 @@
   function gerar() {
     clearTimeout(timer);
     timer = setTimeout(function () {
-      /* Anticoncepção precisa estar resolvida antes de interpolar. */
+      /* Se o usuário editou o documento à mão, NÃO sobrescrever. */
+      if (outputSujo) return;
       estado.anticoncepcao = estado.anticoncepcao || "oral";
       const texto = gerarDocumento().replace("{{anticoncepcao}}", resolverAnticoncepcao());
-      $("#output").textContent = texto;
+      const out = $("#output");
+      out.value = texto;
       $("#contador").textContent = texto.length + " caracteres";
     }, 120);
   }
 
   function copiar() {
-    const txt = $("#output").textContent;
+    const out = $("#output");
+    const txt = out.value;   /* textarea: lê o valor (inclui edições manuais) */
     navigator.clipboard.writeText(txt).then(function () {
       const b = $("#btn-copiar");
       const old = b.textContent;
@@ -208,6 +211,7 @@
 
   function limpar() {
     if (!secaoAtiva) return;
+    outputSujo = false;   /* limpar destrava a re-geração automática */
     secaoAtiva.campos.forEach(function (c) {
       estado[c.id] = (c.def !== undefined) ? c.def : "";
     });
@@ -223,14 +227,152 @@
     try { localStorage.setItem("tema", novo); } catch (e) {}
   }
 
+  /* ---------- Cofre local (histórico 20 dias) ---------- */
+  let vault = null;
+  let outputSujo = false;   /* true se o usuário editou o documento à mão */
+
+  function initVault() {
+    if (typeof VAULT === "undefined") return;
+    vault = VAULT.abrir(window.localStorage);
+  }
+
+  /* nome da paciente da seção ativa (para interconectar no histórico) */
+  function nomePaciente() {
+    return estado.nome || estado.paciente || "";
+  }
+
+  function salvarNoHistorico() {
+    if (!vault) return;
+    const texto = $("#output").value || "";
+    if (!texto.trim()) { toast("Nada para salvar."); return; }
+    const nome = nomePaciente().trim() || "(sem nome)";
+    VAULT.gravar(vault, {
+      paciente: nome,
+      bloco: secaoAtiva ? secaoAtiva.titulo : "Documento",
+      texto: texto,
+      ts: Date.now()
+    });
+    VAULT.salvar(window.localStorage, vault);
+    toast("✓ Salvo no histórico");
+    renderHistorico();
+  }
+
+  /* ---------- Sync: exportar / importar (.json, offline) ---------- */
+  function syncExportar() {
+    if (!vault) return;
+    const json = VAULT.exportar(vault);
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement("a");
+    const d = new Date();
+    const stamp = d.toISOString().slice(0, 10).replace(/-/g, "");
+    a.href = URL.createObjectURL(blob);
+    a.download = "isana-historico-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+    toast("⟳ Histórico exportado (20 dias)");
+  }
+
+  function syncImportar(arquivo) {
+    if (!vault || !arquivo) return;
+    const reader = new FileReader();
+    reader.onload = function () {
+      vault = VAULT.importar(window.localStorage, String(reader.result || ""));
+      renderHistorico();
+      toast("✓ Histórico importado e podado (20 dias)");
+    };
+    reader.readAsText(arquivo);
+  }
+
+  /* ---------- Painel de histórico ---------- */
+  function fmtData(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) +
+      " " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function renderHistorico() {
+    const lista = $("#hist-lista");
+    if (!lista) return;
+    /* innerHTML só com string vazia pra limpar; itens entram via DOM (sem XSS). */
+    lista.innerHTML = "";
+    if (!vault || !vault.entradas.length) {
+      lista.appendChild(el("p", "hist-vazio", "Nada ainda. Salve um documento e ele aparece aqui por 20 dias."));
+      return;
+    }
+    const grupos = VAULT.porPaciente(vault.entradas);
+    const nomes = Object.keys(grupos).sort(function (a, b) {
+      return grupos[b][0].ts - grupos[a][0].ts;
+    });
+    nomes.forEach(function (chave) {
+      const docs = grupos[chave];
+      const nomeExib = docs[0].pacienteExib || "(sem nome)";
+      const gWrap = el("div", "hist-grupo");
+      gWrap.appendChild(el("div", "hist-paciente", "👤 " + nomeExib + " (" + docs.length + ")"));
+      docs.forEach(function (doc) {
+        const item = el("button", "hist-item");
+        item.type = "button";
+        const data = el("span", "hist-data", fmtData(doc.ts));
+        const bloco = el("span", "hist-bloco", doc.bloco);
+        item.appendChild(data); item.appendChild(bloco);
+        item.addEventListener("click", function () { carregarDoHistorico(doc.id); });
+        gWrap.appendChild(item);
+      });
+      lista.appendChild(gWrap);
+    });
+  }
+
+  function carregarDoHistorico(id) {
+    const doc = vault.entradas.find(function (e) { return e.id === id; });
+    if (!doc) return;
+    const out = $("#output");
+    out.value = doc.texto;
+    outputSujo = true;   /* não deixar a re-geração sobrescrever a revisão */
+    $("#contador").textContent = doc.texto.length + " caracteres";
+    fecharHistorico();
+    toast("Documento carregado");
+  }
+
+  function abrirHistorico() {
+    renderHistorico();
+    $("#hist-panel").hidden = false;
+    $("#hist-overlay").hidden = false;
+  }
+  function fecharHistorico() {
+    $("#hist-panel").hidden = true;
+    $("#hist-overlay").hidden = true;
+  }
+
+  /* ---------- toast simples ---------- */
+  let toastTimer = null;
+  function toast(msg) {
+    let t = $("#toast");
+    if (!t) {
+      t = el("div", "", ""); t.id = "toast"; t.className = "toast";
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add("visivel");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("visivel"); }, 1800);
+  }
+
   /* ---------- Login (portão de cortesia, client-side) ----------
      Credenciais definidas pelo dono da ferramenta. Ofuscadas (não em texto
      puro) — mas client-side NÃO é cofre: quem abre o DevTools as encontra.
      Serve para "quem tem o link + a senha usa". */
   const _c = { u: "RHJhLiBJc2FuYQ==", p: "TWF0ZXJuaWRhZGUxMjM0" };  // base64
+  /* Normaliza o login: ignora caixa, espaços e pontos — na correria da
+     enfermaria ninguém decora "Dra. Isana" vs "dra isana" vs "Dra.Isana".
+     A senha continua exata (case-sensitive). */
+  function normLogin(s) {
+    return String(s || "").toLowerCase().replace(/[.\s]/g, "");
+  }
   function credOk(u, p) {
-    try { return btoa(u.trim()) === _c.u && btoa(p) === _c.p; }
-    catch (e) { return false; }
+    try {
+      const loginBase = atob(_c.u);
+      return normLogin(u) === normLogin(loginBase) && btoa(p) === _c.p;
+    } catch (e) { return false; }
   }
   function revelarApp() {
     const login = $("#login-screen");
@@ -280,6 +422,25 @@
     $("#btn-copiar").addEventListener("click", copiar);
     $("#btn-limpar").addEventListener("click", limpar);
     $("#btn-tema").addEventListener("click", tema);
+
+    /* cofre local + histórico + sync */
+    initVault();
+    $("#btn-salvar").addEventListener("click", salvarNoHistorico);
+    $("#btn-hist").addEventListener("click", abrirHistorico);
+    $("#btn-hist-fechar").addEventListener("click", fecharHistorico);
+    $("#hist-overlay").addEventListener("click", fecharHistorico);
+    $("#btn-sync-exp").addEventListener("click", syncExportar);
+    $("#btn-sync-imp").addEventListener("click", function () { $("#imp-file").click(); });
+    $("#imp-file").addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) syncImportar(e.target.files[0]);
+      e.target.value = "";
+    });
+
+    /* documento editável: marcar como "sujo" ao digitar (pausa re-geração) */
+    $("#output").addEventListener("input", function () {
+      outputSujo = true;
+      $("#contador").textContent = this.value.length + " caracteres";
+    });
 
     /* Login primeiro; a calculadora só monta após o acesso. */
     initLogin();

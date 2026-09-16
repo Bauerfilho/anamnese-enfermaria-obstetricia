@@ -1,15 +1,17 @@
 /* sw.js — cache-first offline-first. Sem backend, sem envio de dados. */
-const CACHE = "anamnese-go-v1";
+const CACHE = "anamnese-go-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./css/style.css",
   "./js/templates.js",
   "./js/schema.js",
+  "./js/vault.js",
   "./js/app.js",
   "./manifest.webmanifest",
   "./assets/icon.svg",
-  "./assets/marca-isana.svg"
+  "./assets/marca-isana.svg",
+  "./assets/logo-ml.svg"
 ];
 
 self.addEventListener("install", (e) => {

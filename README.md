@@ -21,12 +21,24 @@ Medicina de enfermaria é corrida. Em vez de redigir cada evolução do zero, vo
 - **Defaults fisiológicos pré-marcados:** o documento já nasce ~80% preenchido ("nega", "Bom estado geral…"). Você só ajusta o que difere.
 - **Ordem verbatim:** a saída segue o template original, sem resumir nem reordenar.
 
-## Privacidade (LGPD)
+## Privacidade (LGPD) — leia se for guardar dados de paciente
 
-- **Sem backend.** Todo o processamento é 100% no dispositivo.
-- Dados da paciente **nunca** saem do aparelho; nada é enviado à nuvem.
+- **Sem backend / sem nuvem.** Todo o processamento é 100% no dispositivo.
 - **Credenciais do notepad original (LISNET etc.) ficaram de fora** de propósito — este app não carrega nem exibe senhas ou links internos.
-- Nenhum dado identificável de paciente é persistido.
+
+### Histórico local (aba 🕘)
+
+- O botão **Salvar** guarda o documento num **cofre local** (`localStorage`) **só neste dispositivo**, criado na primeira entrada.
+- **Retenção automática: 20 dias.** Tudo que passa de 20 dias é **apagado sozinho** — ao salvar, ao abrir e ao importar.
+- **Interconexão por nome:** documentos da mesma paciente (mesmo nome, ignorando acento/caixa) agrupam → histórico completo dos últimos dias dela.
+- **Data/hora automática:** o app usa o relógio do sistema — você não precisa informar o dia.
+
+### Botão Sync (⟳ Exportar / Importar)
+
+- **Não é nuvem.** O Sync **exporta** o cofre como arquivo `.json` (baixar) e **importa** um `.json` (carregar) — para a médica levar o histórico entre dispositivos (ex.: do computador pro celular) **offline**.
+- O arquivo exportado **contém dados de paciente** — guarde/apague com responsabilidade. A regra dos 20 dias também é aplicada ao importar.
+- **Limitação honesta:** o cofre é por dispositivo+navegador. Não há sync automático entre pessoas — isso exigiria servidor (e dado de paciente em nuvem, que evitamos de propósito).
+- O navegador/SO pode limpar `localStorage` em falta de espaço ou "limpar dados de site". **Exporte periodicamente** se quiser garantir.
 
 ## Stack
 

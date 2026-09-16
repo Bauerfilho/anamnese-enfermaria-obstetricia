@@ -18,14 +18,15 @@
   <header class="topo" id="topo">
     <div class="topo-inner">
       <div class="brand">
-        <span class="brand-ponto" aria-hidden="true"></span>
+        <img class="brand-logo" src="assets/logo-ml.svg" alt="Maternidade Lourdinha" width="34" height="34" />
         <div class="brand-txt">
-          <strong>Anamnese Enfermaria</strong>
-          <span>Obstetrícia · GO</span>
+          <strong>Maternidade Lourdinha</strong>
+          <span>Anamnese Enfermaria · Obstetrícia</span>
         </div>
       </div>
 
       <div class="topo-acoes">
+        <button id="btn-hist" class="btn-icone" title="Histórico (últimos 20 dias)" aria-label="Abrir histórico">🕘</button>
         <button id="btn-tema" class="btn-icone" title="Alternar tema" aria-label="Alternar tema">◐</button>
         <button id="btn-menu" class="btn-icone btn-hamb" title="Seções" aria-label="Abrir menu de seções" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -48,6 +49,7 @@
       </div>
       <img class="login-icone" src="assets/marca-isana.svg" alt="" width="120" height="120" />
       <p class="login-sub">Anamnese de Enfermaria · Obstetrícia</p>
+      <p class="login-ml"><img src="assets/logo-ml.svg" alt="" width="20" height="20" /> Maternidade Lourdinha</p>
 
       <form id="login-form" class="login-form" novalidate>
         <label class="login-label" for="login-user">Login</label>
@@ -77,17 +79,40 @@
             <span id="contador" class="contador">0 caracteres</span>
           </div>
           <div class="out-acoes">
+            <button id="btn-salvar" class="btn btn-sec" title="Salvar no histórico local">Salvar</button>
             <button id="btn-limpar" class="btn btn-sec">Limpar</button>
             <button id="btn-copiar" class="btn btn-pri">Copiar</button>
           </div>
         </div>
-        <pre id="output" class="output" tabindex="0"></pre>
+        <!-- saída EDITÁVEL: dá pra escrever/apagar direto no documento -->
+        <textarea id="output" class="output" spellcheck="false"
+                  aria-label="Documento gerado (editável)"></textarea>
+        <p class="lgpd-nota">🔒 Histórico só neste dispositivo, apagado automaticamente em 20 dias. Sem nuvem.</p>
       </div>
     </section>
   </main>
 
+  <!-- ============ PAINEL DE HISTÓRICO (últimos 20 dias) ============ -->
+  <aside id="hist-panel" class="hist-panel" aria-label="Histórico" hidden>
+    <div class="hist-head">
+      <div>
+        <strong>Histórico</strong>
+        <span class="hist-sub">últimos 20 dias · apaga sozinho</span>
+      </div>
+      <div class="hist-acoes">
+        <button id="btn-sync-exp" class="btn btn-sec btn-pq" title="Exportar histórico (.json)">⟳ Exportar</button>
+        <button id="btn-sync-imp" class="btn btn-sec btn-pq" title="Importar histórico (.json)">Importar</button>
+        <button id="btn-hist-fechar" class="btn-icone" title="Fechar" aria-label="Fechar histórico">✕</button>
+      </div>
+    </div>
+    <input type="file" id="imp-file" accept="application/json" hidden />
+    <div id="hist-lista" class="hist-lista"></div>
+  </aside>
+  <div id="hist-overlay" class="nav-overlay" hidden></div>
+
   <script src="js/templates.js"></script>
   <script src="js/schema.js"></script>
+  <script src="js/vault.js"></script>
   <script src="js/app.js"></script>
   <script>
     /* toggle do menu lateral (mobile) */

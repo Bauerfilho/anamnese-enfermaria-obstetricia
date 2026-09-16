@@ -183,6 +183,14 @@
 
   /* ---------- Saída ---------- */
 
+  /* Auto-ajusta a altura do textarea ao conteúdo (sem scroll interno esmagado). */
+  function autoAltura() {
+    const out = $("#output");
+    if (!out) return;
+    out.style.height = "auto";
+    out.style.height = Math.max(out.scrollHeight, 320) + "px";
+  }
+
   let timer = null;
   function gerar() {
     clearTimeout(timer);
@@ -194,6 +202,7 @@
       const out = $("#output");
       out.value = texto;
       $("#contador").textContent = texto.length + " caracteres";
+      autoAltura();
     }, 120);
   }
 
@@ -329,6 +338,7 @@
     out.value = doc.texto;
     outputSujo = true;   /* não deixar a re-geração sobrescrever a revisão */
     $("#contador").textContent = doc.texto.length + " caracteres";
+    autoAltura();
     fecharHistorico();
     toast("Documento carregado");
   }
@@ -436,10 +446,12 @@
       e.target.value = "";
     });
 
-    /* documento editável: marcar como "sujo" ao digitar (pausa re-geração) */
+    /* documento editável: marcar como "sujo" ao digitar (pausa re-geração)
+       e auto-ajustar a altura conforme digita */
     $("#output").addEventListener("input", function () {
       outputSujo = true;
       $("#contador").textContent = this.value.length + " caracteres";
+      autoAltura();
     });
 
     /* Login primeiro; a calculadora só monta após o acesso. */

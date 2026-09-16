@@ -38,17 +38,20 @@
           fill="url(#metal)"/>
   </g>
 
-  <!-- estrelinha flutuante: sparkle de 4 pontas (concavidades → pontas finas), com relevo -->
+  <!-- estrelinha flutuante: sparkle de 4 pontas, MENOR (proporção do ref: ~25%
+       da largura dos anéis) e FLUTUANTE (gap acima do anel externo, sem tocar).
+       Anel externo tem topo em cy-r-stroke/2 = 322-150-19 = 153. Estrela
+       centralizada em cy≈96, altura ~64, ponta inferior em ~128 → folga de 25. -->
   <g filter="url(#relevo)">
-    <path d="M256 78
-             Q261 108 268 122
-             Q282 129 312 134
-             Q282 139 268 146
-             Q261 160 256 190
-             Q251 160 244 146
-             Q230 139 200 134
-             Q230 129 244 122
-             Q251 108 256 78 Z"
+    <path d="M256 60
+             Q259 84 264 94
+             Q274 101 296 105
+             Q274 109 264 116
+             Q259 126 256 150
+             Q253 126 248 116
+             Q238 109 216 105
+             Q238 101 248 94
+             Q253 84 256 60 Z"
           fill="url(#metal)"/>
   </g>
 </svg>

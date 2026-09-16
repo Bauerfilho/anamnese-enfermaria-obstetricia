@@ -1,5 +1,5 @@
 /* sw.js — cache-first offline-first. Sem backend, sem envio de dados. */
-const CACHE = "anamnese-go-v3";
+const CACHE = "anamnese-go-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,10 @@ const ASSETS = [
   "./js/templates.js",
   "./js/schema.js",
   "./js/vault.js",
+  "./js/crypto.js",
+  "./js/config.js",
+  "./js/sync.js",
+  "./js/modelos.js",
   "./js/app.js",
   "./manifest.webmanifest",
   "./assets/icon.svg",
@@ -31,6 +35,10 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  /* Supabase (e qualquer origem externa) NUNCA passa pelo cache: sync precisa de
+     rede fresca e o Realtime nem é GET cacheável. Deixa ir direto pra rede. */
+  if (url.origin !== location.origin) return;
   e.respondWith(
     caches.match(e.request).then((hit) =>
       hit ||

@@ -31,6 +31,7 @@
 
       <div class="topo-acoes">
         <button id="btn-hist" class="btn-icone" title="Histórico (últimos 20 dias)" aria-label="Abrir histórico">🕘</button>
+        <button id="btn-personalizar" class="btn-icone" title="Personalizar modelos" aria-label="Personalizar modelos">⚙</button>
         <button id="btn-tema" class="btn-icone" title="Alternar tema" aria-label="Alternar tema">◐</button>
         <button id="btn-sair" class="btn-icone btn-sair" title="Sair" aria-label="Sair">⎋</button>
         <button id="btn-menu" class="btn-icone btn-hamb" title="Seções" aria-label="Abrir menu de seções" aria-expanded="false">
@@ -97,7 +98,16 @@
         <!-- saída EDITÁVEL: dá pra escrever/apagar direto no documento -->
         <textarea id="output" class="output" spellcheck="false"
                   aria-label="Documento gerado (editável)"></textarea>
-        <p class="lgpd-nota">🔒 Histórico só neste dispositivo, apagado automaticamente em 20 dias. Sem nuvem.</p>
+
+        <!-- SYNCH: empurra o histórico pros outros computadores (criptografado) -->
+        <div class="synch-barra">
+          <button id="btn-synch" class="btn btn-synch" title="Sincronizar histórico entre computadores (criptografado)">
+            ⟳ SYNCH
+          </button>
+          <span id="sync-status" class="sync-status" role="status" aria-live="polite"></span>
+        </div>
+
+        <p class="lgpd-nota">🔒 Sync criptografado entre os computadores da equipe. Apagado automaticamente em 20 dias.</p>
       </div>
     </section>
   </main>
@@ -120,10 +130,42 @@
   </aside>
   <div id="hist-overlay" class="nav-overlay" hidden></div>
 
+  <!-- ============ PAINEL PERSONALIZAR (modelos extras) ============ -->
+  <aside id="pers-panel" class="hist-panel pers-panel" aria-label="Personalizar modelos" hidden>
+    <div class="hist-head">
+      <div>
+        <strong>Personalizar modelos</strong>
+        <span class="hist-sub">adicione modelos extras · os da preceptora não mudam</span>
+      </div>
+      <button id="btn-pers-fechar" class="btn-icone" title="Fechar" aria-label="Fechar personalização">✕</button>
+    </div>
+
+    <!-- criar modelo extra -->
+    <div class="pers-novo">
+      <input id="pers-titulo" class="campo-input" type="text" placeholder="Nome do modelo (ex.: Evolução Pós-Parto Vaginal)" />
+      <textarea id="pers-corpo" class="campo-input pers-corpo" rows="6"
+        placeholder="Texto do modelo. Use {{nome}}, {{idade}}, {{evolucao}}... para puxar dados do formulário."></textarea>
+      <button id="btn-pers-add" class="btn btn-pri" style="width:100%">+ Adicionar modelo extra</button>
+    </div>
+
+    <div id="pers-lista" class="hist-lista"></div>
+  </aside>
+  <div id="pers-overlay" class="nav-overlay" hidden></div>
+
   <script src="js/templates.js"></script>
   <script src="js/schema.js"></script>
   <script src="js/vault.js"></script>
+  <script src="js/crypto.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/sync.js"></script>
+  <script src="js/modelos.js"></script>
   <script src="js/app.js"></script>
+  <!-- Supabase JS (cria window.__sb.createClient) para o sync -->
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+    window.__sb = { createClient };
+    window.dispatchEvent(new Event("sb-pronto"));
+  </script>
   <script>
     /* toggle do menu lateral (mobile) */
     (function () {

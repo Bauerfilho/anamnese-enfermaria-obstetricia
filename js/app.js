@@ -39,6 +39,8 @@
     /* Blocos compostos (alta / atestados) escolhem sub-templates. */
     if (tplKey === "__composto__") return montarAlta();
     if (tplKey === "__atestados__") return montarAtestado();
+    /* Modelo extra: interpola o corpo que a médica escreveu. */
+    if (tplKey === "__modelo_extra__") return interpolar(secaoAtiva.corpo || "");
 
     const tpl = TEMPLATES[tplKey];
     return tpl ? interpolar(tpl) : "";
@@ -88,7 +90,7 @@
   function renderNav() {
     const nav = $("#nav");
     nav.innerHTML = "";
-    SECTIONS.forEach(function (s) {
+    secoesComExtras().forEach(function (s) {
       const b = el("button", "nav-item", s.titulo);
       b.dataset.secao = s.id;
       b.addEventListener("click", function () { ativar(s.id); });
@@ -97,7 +99,8 @@
   }
 
   function ativar(id) {
-    secaoAtiva = SECTIONS.find(function (s) { return s.id === id; });
+    secaoAtiva = secoesComExtras().find(function (s) { return s.id === id; });
+    if (!secaoAtiva) secaoAtiva = SECTIONS[0];
     document.querySelectorAll(".nav-item").forEach(function (b) {
       b.classList.toggle("ativo", b.dataset.secao === id);
     });
@@ -240,9 +243,176 @@
   let vault = null;
   let outputSujo = false;   /* true se o usuário editou o documento à mão */
 
+  /* ---------- Modelos extras (auto-personalização) ---------- */
+  let modelosBox = null;
+
+  function initModelos() {
+    if (typeof MODELOS === "undefined") return;
+    modelosBox = MODELOS.abrir(window.localStorage);
+  }
+
+  /* Modelos extras viram SEÇÕES ao final do menu. Cada placeholder {{campo}} do
+     corpo vira um campo de texto genérico; campos conhecidos reutilizam o estado
+     global (nome, idade...). Originais (SECTIONS) NUNCA são tocados. */
+  function secoesComExtras() {
+    const base = SECTIONS.slice();
+    if (!modelosBox) return base;
+    MODELOS.listar(modelosBox).forEach(function (m) {
+      const campos = {};
+      (String(m.corpo).match(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g) || []).forEach(function (ph) {
+        const id = ph.replace(/[{}]/g, "").trim();
+        campos[id] = true;
+      });
+      const lista = Object.keys(campos).map(function (id) {
+        return { id: id, label: id.charAt(0).toUpperCase() + id.slice(1).replace(/_/g, " "), tipo: "textarea" };
+      });
+      base.push({
+        id: "extra-" + m.id,
+        titulo: m.titulo,
+        tpl: "__modelo_extra__",
+        corpo: m.corpo,
+        campos: lista
+      });
+    });
+    return base;
+  }
+
+  function abrirPers() {
+    renderPers();
+    $("#pers-panel").hidden = false;
+    $("#pers-overlay").hidden = false;
+  }
+  function fecharPers() {
+    $("#pers-panel").hidden = true;
+    $("#pers-overlay").hidden = true;
+  }
+
+  function renderPers() {
+    const lista = $("#pers-lista");
+    if (!lista || !modelosBox) return;
+    lista.innerHTML = "";
+    const extras = MODELOS.listar(modelosBox);
+    if (!extras.length) {
+      lista.appendChild(el("p", "pers-vazio", "Nenhum modelo extra ainda. Crie um acima — ele vira uma seção nova no menu lateral, sem mexer nos modelos da preceptora."));
+      return;
+    }
+    extras.forEach(function (m) {
+      const item = el("div", "pers-item");
+      item.appendChild(el("strong", "", m.titulo));
+      const prev = m.corpo.length > 160 ? m.corpo.slice(0, 160) + "…" : m.corpo;
+      item.appendChild(el("div", "pers-prev", prev));
+      const acoes = el("div", "pers-acoes");
+      const bUsar = el("button", "btn btn-sec btn-pq", "Abrir");
+      bUsar.type = "button";
+      bUsar.addEventListener("click", function () { fecharPers(); ativar("extra-" + m.id); });
+      const bDel = el("button", "btn btn-sec btn-pq", "Remover");
+      bDel.type = "button";
+      bDel.addEventListener("click", function () {
+        MODELOS.remover(modelosBox, m.id);
+        MODELOS.salvar(window.localStorage, modelosBox);
+        renderPers(); renderNav();
+        toast("Modelo removido.");
+      });
+      acoes.appendChild(bUsar); acoes.appendChild(bDel);
+      item.appendChild(acoes);
+      lista.appendChild(item);
+    });
+  }
+
+  function adicionarModeloExtra() {
+    const t = $("#pers-titulo").value.trim();
+    const c = $("#pers-corpo").value;
+    if (!t) { toast("Dê um nome ao modelo."); return; }
+    if (!c.trim()) { toast("Escreva o texto do modelo."); return; }
+    MODELOS.adicionar(modelosBox, { titulo: t, corpo: c });
+    MODELOS.salvar(window.localStorage, modelosBox);
+    $("#pers-titulo").value = ""; $("#pers-corpo").value = "";
+    renderPers(); renderNav();
+    toast("✓ Modelo extra adicionado ao menu");
+  }
+
   function initVault() {
     if (typeof VAULT === "undefined") return;
     vault = VAULT.abrir(window.localStorage);
+  }
+
+  /* ---------- Sync (Supabase, criptografado no cliente) ---------- */
+  let syncPronto = false;
+
+  function setSyncStatus(txt, cls) {
+    const s = $("#sync-status");
+    if (!s) return;
+    s.textContent = txt;
+    s.className = "sync-status " + (cls || "");
+  }
+
+  /* Espera o supabase-js (window.__sb) carregar — ele é um módulo, vem depois. */
+  function esperarSb() {
+    return new Promise(function (resolve) {
+      if (window.__sb) return resolve(true);
+      const t = setTimeout(function () { resolve(!!window.__sb); }, 5000);
+      window.addEventListener("sb-pronto", function () { clearTimeout(t); resolve(true); }, { once: true });
+    });
+  }
+
+  /* Inicializa o sync: cria o client Supabase e deriva a chave da senha do app.
+     Roda APÓS o login (a chave vem da senha) e espera o supabase-js carregar. */
+  async function initSync() {
+    if (typeof SYNC === "undefined" || typeof CRYPTO === "undefined") return;
+    const cfg = window.SUPABASE_CONFIG;
+    if (!cfg || !cfg.url || !cfg.anonKey) { setSyncStatus("sync não configurado", "off"); return; }
+    try {
+      setSyncStatus("conectando…", "off");
+      await esperarSb();
+      /* senha do app (base64 ofuscada) -> texto -> chave de criptografia */
+      const senhaApp = atob(_c.p);
+      const key = await CRYPTO.deriveKey(senhaApp);
+      /* o client real é criado via window.__sb (supabase-js por CDN) */
+      SYNC.init({ url: cfg.url, anonKey: cfg.anonKey, cryptoKey: key });
+      syncPronto = SYNC._pronto();
+      if (syncPronto) {
+        setSyncStatus(navigator.onLine ? "● online" : "● offline", navigator.onLine ? "on" : "off");
+        /* Realtime: outra tela salvou -> aparece aqui */
+        SYNC.assinar(function (doc) {
+          toast("⟳ Recebido de outro computador: " + (doc.pacienteExib || "documento"));
+          renderHistorico();
+        }, window.localStorage);
+        /* primeira sincronização silenciosa ao abrir */
+        SYNC.sincronizar(window.localStorage, vault).then(function (r) {
+          if (r.ok && r.recebidos > 0) renderHistorico();
+        }).catch(function () {});
+      } else {
+        setSyncStatus("● offline", "off");
+      }
+    } catch (e) {
+      setSyncStatus("● offline", "off");
+    }
+  }
+
+  /* Apertou SYNCH: empurra o histórico local e puxa o que veio. */
+  function apertarSynch() {
+    const btn = $("#btn-synch");
+    if (!syncPronto) { toast("Sync não configurado."); return; }
+    if (!navigator.onLine) { toast("Sem rede — sincroniza quando voltar."); setSyncStatus("● offline", "off"); return; }
+    btn.disabled = true;
+    btn.classList.remove("ok");
+    btn.textContent = "⟳ Sincronizando…";
+    SYNC.sincronizar(window.localStorage, vault).then(function (r) {
+      btn.disabled = false;
+      if (r.ok) {
+        btn.classList.add("ok");
+        btn.textContent = "✓ Sincronizado";
+        setSyncStatus("● online · ↑" + (r.subidos || 0) + " ↓" + (r.recebidos || 0), "on");
+        renderHistorico();
+      } else {
+        btn.textContent = "⟳ SYNCH";
+        setSyncStatus("falhou — tenta de novo", "off");
+      }
+      setTimeout(function () { btn.classList.remove("ok"); btn.textContent = "⟳ SYNCH"; }, 2200);
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "⟳ SYNCH";
+      setSyncStatus("falhou — tenta de novo", "off");
+    });
   }
 
   /* nome da paciente da seção ativa (para interconectar no histórico) */
@@ -394,6 +564,8 @@
       app.classList.add("entrando");
       /* garante o form renderizado ao revelar */
       if (SECTIONS.length && !secaoAtiva) ativar(SECTIONS[0].id);
+      /* o sync só liga após o login: a chave de criptografia deriva da senha */
+      if (!syncPronto) initSync();
     }, 420);
   }
   function sair() {
@@ -450,8 +622,19 @@
     $("#btn-tema").addEventListener("click", tema);
     $("#btn-sair").addEventListener("click", sair);
 
-    /* cofre local + histórico + sync */
+    /* personalização (modelos extras) */
+    initModelos();
+    renderNav();   /* remonta incluindo modelos extras */
+    $("#btn-personalizar").addEventListener("click", abrirPers);
+    $("#btn-pers-fechar").addEventListener("click", fecharPers);
+    $("#pers-overlay").addEventListener("click", fecharPers);
+    $("#btn-pers-add").addEventListener("click", adicionarModeloExtra);
+
+    /* cofre local + histórico (o sync só liga DEPOIS do login — ver revelarApp) */
     initVault();
+    $("#btn-synch").addEventListener("click", apertarSynch);
+    window.addEventListener("online",  function () { setSyncStatus("● online", "on"); });
+    window.addEventListener("offline", function () { setSyncStatus("● offline", "off"); });
     $("#btn-salvar").addEventListener("click", salvarNoHistorico);
     $("#btn-hist").addEventListener("click", abrirHistorico);
     $("#btn-hist-fechar").addEventListener("click", fecharHistorico);

@@ -1,3 +1,10 @@
 # Fonte-contrato local: contém credenciais (LISNET) — NUNCA versionar.
 tools/isana-template.txt
 .DS_Store
+
+# Credenciais do Supabase (sync) — NUNCA versionar a service_role nem o .env local.
+# (js/config.js COM a publishable/anon key É versionado de propósito: ela é feita
+#  pro front-end; a defesa é RLS + criptografia no cliente. service_role NUNCA aqui.)
+*.env
+supabase.env
+.config/anamnese-go/

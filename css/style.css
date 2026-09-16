@@ -398,8 +398,9 @@ body {
   50% { transform: scale(1.18) rotate(15deg); opacity: 0.75; }
 }
 .login-icone {
-  display: block; margin: 22px auto 6px;
-  border-radius: 28px; box-shadow: var(--sombra-forte);
+  display: block; margin: 18px auto 4px;
+  /* sem caixa: só os traços pretos flutuando */
+  background: transparent; border-radius: 0; box-shadow: none;
 }
 .login-sub { margin: 4px 0 24px; font-size: 13.5px; color: var(--texto-sec); }
 

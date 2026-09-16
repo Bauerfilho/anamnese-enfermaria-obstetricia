@@ -1,29 +1,54 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Marca Isana">
+  <!--
+    Logo Isana — esculpida. Preto sobre fundo transparente.
+    Geometria medida do ícone de referência aprovado:
+      • dois anéis concêntricos (externo grosso, interno fino)
+      • losango 45° de cantos arredondados, sólido, ao centro
+      • estrelinha sparkle de 4 pontas (pontas longas e finas), FLUTUANTE acima
+    Acabamento: brilho branco-acinzentado no topo + sombra suave embaixo
+    (relevo) na estrela e no losango.
+  -->
   <defs>
-    <linearGradient id="ouro" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#f0d489"/>
-      <stop offset="0.5" stop-color="#e2bd60"/>
-      <stop offset="1" stop-color="#b8913f"/>
+    <!-- volume sutil: preto com leve variação -->
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2b2b30"/>
+      <stop offset="0.5" stop-color="#17171a"/>
+      <stop offset="1" stop-color="#0c0c0e"/>
     </linearGradient>
-    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#232326"/>
-      <stop offset="1" stop-color="#131315"/>
-    </linearGradient>
+    <!-- relevo esculpido: brilho em cima, sombra embaixo -->
+    <filter id="relevo" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="-2.5" stdDeviation="2" flood-color="#ffffff" flood-opacity="0.4"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
   </defs>
 
-  <!-- quadrado arredondado escuro -->
-  <rect width="512" height="512" rx="118" fill="url(#fundo)"/>
-  <rect x="10" y="10" width="492" height="492" rx="110" fill="none"
-        stroke="url(#ouro)" stroke-width="5" opacity="0.9"/>
+  <!-- anéis (sem relevo — traço limpo) -->
+  <g fill="none" stroke="url(#metal)" stroke-linecap="round">
+    <circle cx="256" cy="322" r="150" stroke-width="38"/>
+    <circle cx="256" cy="322" r="104" stroke-width="13"/>
+  </g>
 
-  <!-- estrelinha no topo (4 pontas) -->
-  <path d="M256 74 l9 26 26 9 -26 9 -9 26 -9 -26 -26 -9 26 -9 z" fill="url(#ouro)"/>
+  <!-- losango central: quadrado 45° com cantos arredondados, sólido, com relevo -->
+  <g filter="url(#relevo)">
+    <path d="M256 246
+             Q262 246 266 250 L322 306 Q326 310 326 322
+             Q326 334 322 338 L266 394 Q262 398 256 398
+             Q250 398 246 394 L190 338 Q186 334 186 322
+             Q186 310 190 306 L246 250 Q250 246 256 246 Z"
+          fill="url(#metal)"/>
+  </g>
 
-  <!-- anel duplo dourado -->
-  <circle cx="256" cy="290" r="118" fill="none" stroke="url(#ouro)" stroke-width="12"/>
-  <circle cx="256" cy="290" r="90" fill="none" stroke="url(#ouro)" stroke-width="6" opacity="0.85"/>
-
-  <!-- losango central -->
-  <rect x="222" y="256" width="68" height="68" rx="10"
-        transform="rotate(45 256 290)" fill="url(#ouro)"/>
+  <!-- estrelinha flutuante: sparkle de 4 pontas (concavidades → pontas finas), com relevo -->
+  <g filter="url(#relevo)">
+    <path d="M256 78
+             Q261 108 268 122
+             Q282 129 312 134
+             Q282 139 268 146
+             Q261 160 256 190
+             Q251 160 244 146
+             Q230 139 200 134
+             Q230 129 244 122
+             Q251 108 256 78 Z"
+          fill="url(#metal)"/>
+  </g>
 </svg>

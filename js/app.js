@@ -471,6 +471,20 @@
       autoAltura();
     });
 
+    /* olhinho da senha: alterna entre ••••• e texto legível */
+    const olho = $("#btn-olho");
+    const campoSenha = $("#login-pass");
+    if (olho && campoSenha) {
+      olho.addEventListener("click", function () {
+        const mostrar = campoSenha.type === "password";
+        campoSenha.type = mostrar ? "text" : "password";
+        olho.setAttribute("aria-pressed", String(mostrar));
+        olho.classList.toggle("ativo", mostrar);
+        olho.textContent = mostrar ? "🙈" : "👁";
+        campoSenha.focus();
+      });
+    }
+
     /* Login primeiro; a calculadora só monta após o acesso. */
     initLogin();
 

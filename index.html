@@ -57,8 +57,12 @@
         <input id="login-user" class="campo-input" type="text" autocomplete="username"
                placeholder="Dra. Isana" />
         <label class="login-label" for="login-pass">Senha</label>
-        <input id="login-pass" class="campo-input" type="password" autocomplete="current-password"
-               placeholder="••••••••••••" />
+        <div class="senha-wrap">
+          <input id="login-pass" class="campo-input" type="password" autocomplete="current-password"
+                 placeholder="••••••••••••" />
+          <button type="button" id="btn-olho" class="btn-olho" aria-label="Mostrar senha"
+                  aria-pressed="false" title="Mostrar/ocultar senha">👁</button>
+        </div>
         <p id="login-erro" class="login-erro" role="alert" hidden>Login ou senha incorretos.</p>
         <button type="submit" class="btn btn-pri login-btn">Entrar</button>
         <p class="login-dica">Funciona direto no navegador — instalar o app é opcional.<br/>O histórico (20 dias) fica só neste dispositivo.</p>

@@ -409,6 +409,18 @@ body {
   margin: 12px 0 6px;
 }
 .login-form .campo-input { text-align: left; }
+/* senha com olhinho */
+.senha-wrap { position: relative; }
+.senha-wrap .campo-input { padding-right: 48px; width: 100%; }
+.btn-olho {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  width: 36px; height: 36px; border: none; background: transparent;
+  font-size: 17px; cursor: pointer; border-radius: 9px; line-height: 1;
+  display: grid; place-items: center; opacity: 0.55;
+  transition: opacity var(--transicao), background var(--transicao);
+}
+.btn-olho:hover { opacity: 1; background: var(--freq-media-bg); }
+.btn-olho.ativo { opacity: 1; }
 .login-erro {
   margin: 10px 0 0; font-size: 13px; font-weight: 600; color: var(--coral-forte);
 }

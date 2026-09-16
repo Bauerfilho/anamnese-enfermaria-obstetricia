@@ -1,0 +1,20 @@
+{
+  "name": "Anamnese Enfermaria — Obstetrícia",
+  "short_name": "Anamnese GO",
+  "description": "Calculadora de anamnese de enfermaria obstétrica. Preencha o questionário e o documento é gerado no formato da preceptora.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#faf6f1",
+  "theme_color": "#ff6b5e",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

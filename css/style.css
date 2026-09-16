@@ -130,6 +130,8 @@ body {
 .btn-icone:hover { transform: translateY(-1px); }
 .btn-hamb { flex-direction: column; gap: 4px; }
 .btn-hamb span { display: block; width: 16px; height: 2px; background: var(--texto); border-radius: 2px; }
+.btn-sair { color: var(--coral-forte); font-size: 18px; }
+[data-theme="dark"] .btn-sair { color: var(--coral); }
 
 /* ---------- nav lateral ---------- */
 .nav-lateral {

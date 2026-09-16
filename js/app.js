@@ -396,6 +396,22 @@
       if (SECTIONS.length && !secaoAtiva) ativar(SECTIONS[0].id);
     }, 420);
   }
+  function sair() {
+    /* limpa a sessão e volta pra tela de login (estado do formulário se mantém) */
+    try { sessionStorage.removeItem("isana_auth"); } catch (e) {}
+    const app = $("#app");
+    const login = $("#login-screen");
+    fecharHistorico();
+    app.hidden = true;
+    app.classList.remove("entrando");
+    login.classList.remove("saindo");
+    login.hidden = false;
+    const lp = $("#login-pass");
+    if (lp) lp.value = "";
+    const lu = $("#login-user");
+    if (lu) { lu.focus(); }
+  }
+
   function initLogin() {
     const form = $("#login-form");
     if (!form) return;
@@ -432,6 +448,7 @@
     $("#btn-copiar").addEventListener("click", copiar);
     $("#btn-limpar").addEventListener("click", limpar);
     $("#btn-tema").addEventListener("click", tema);
+    $("#btn-sair").addEventListener("click", sair);
 
     /* cofre local + histórico + sync */
     initVault();

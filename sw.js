@@ -1,5 +1,5 @@
 /* sw.js — cache-first offline-first. Sem backend, sem envio de dados. */
-const CACHE = "anamnese-go-v2";
+const CACHE = "anamnese-go-v3";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,9 @@ const ASSETS = [
   "./js/app.js",
   "./manifest.webmanifest",
   "./assets/icon.svg",
+  "./assets/icon-180.png",
+  "./assets/icon-192.png",
+  "./assets/icon-512.png",
   "./assets/marca-isana.svg",
   "./assets/logo-ml.svg"
 ];

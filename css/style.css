@@ -380,22 +380,24 @@ body {
   font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
   color: var(--texto-sec); text-transform: lowercase;
 }
+/* Nome "Isana" centralizado SOZINHO; a estrelinha flutua ACIMA dele,
+   centralizada, sem jogar o nome pro lado. O conjunto desce um pouco. */
 .login-nome-wrap {
-  position: relative; display: flex; align-items: baseline; gap: 8px;
-  justify-content: center; margin-top: 2px;
+  position: relative; display: block; text-align: center;
+  margin-top: 26px;   /* espaço pra estrela flutuar acima */
 }
 .login-nome {
   margin: 0; font-size: 46px; font-weight: 700; letter-spacing: -0.03em;
-  color: var(--texto);  /* estrela na MESMA cor do nome */
+  color: var(--texto);
 }
 .login-estrela {
-  align-self: flex-start; margin-top: -4px;
-  font-size: 22px; color: var(--texto);  /* mesma cor do nome (preto/tema) */
+  position: absolute; left: 50%; top: -22px; transform: translateX(-50%);
+  font-size: 22px; color: var(--texto);  /* mesma cor do nome */
   animation: estrela-brilho 2.4s ease-in-out infinite;
 }
 @keyframes estrela-brilho {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  50% { transform: scale(1.18) rotate(15deg); opacity: 0.75; }
+  0%, 100% { transform: translateX(-50%) scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: translateX(-50%) scale(1.18) rotate(15deg); opacity: 0.75; }
 }
 .login-icone {
   display: block; margin: 18px auto 4px;

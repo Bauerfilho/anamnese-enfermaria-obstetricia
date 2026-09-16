@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Marca Isana">
+  <defs>
+    <linearGradient id="ouro" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0d489"/>
+      <stop offset="0.5" stop-color="#e2bd60"/>
+      <stop offset="1" stop-color="#b8913f"/>
+    </linearGradient>
+    <linearGradient id="fundo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#232326"/>
+      <stop offset="1" stop-color="#131315"/>
+    </linearGradient>
+  </defs>
+
+  <!-- quadrado arredondado escuro -->
+  <rect width="512" height="512" rx="118" fill="url(#fundo)"/>
+  <rect x="10" y="10" width="492" height="492" rx="110" fill="none"
+        stroke="url(#ouro)" stroke-width="5" opacity="0.9"/>
+
+  <!-- estrelinha no topo (4 pontas) -->
+  <path d="M256 74 l9 26 26 9 -26 9 -9 26 -9 -26 -26 -9 26 -9 z" fill="url(#ouro)"/>
+
+  <!-- anel duplo dourado -->
+  <circle cx="256" cy="290" r="118" fill="none" stroke="url(#ouro)" stroke-width="12"/>
+  <circle cx="256" cy="290" r="90" fill="none" stroke="url(#ouro)" stroke-width="6" opacity="0.85"/>
+
+  <!-- losango central -->
+  <rect x="222" y="256" width="68" height="68" rx="10"
+        transform="rotate(45 256 290)" fill="url(#ouro)"/>
+</svg>

@@ -272,3 +272,84 @@ body {
   .orb, .orb-a, .orb-b { animation: none; }
   * { transition-duration: 0.01ms !important; }
 }
+
+/* ============================================================
+   TELA DE LOGIN — marca invertexto / Isana
+   ============================================================ */
+.login-screen {
+  position: fixed; inset: 0; z-index: 100;
+  display: grid; place-items: center; padding: 24px;
+  /* fundo vem do body (dot-grid + orbs) — o mesmo da calculadora */
+}
+.login-card {
+  width: min(400px, 100%);
+  background: var(--bg-vidro);
+  backdrop-filter: saturate(1.5) blur(22px);
+  -webkit-backdrop-filter: saturate(1.5) blur(22px);
+  border: 1px solid var(--borda);
+  border-radius: 28px;
+  box-shadow: var(--sombra-forte);
+  padding: 40px 34px 34px;
+  text-align: center;
+  animation: login-entrada 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes login-entrada {
+  from { opacity: 0; transform: translateY(18px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.login-screen.saindo { animation: login-saida 0.45s ease both; }
+@keyframes login-saida {
+  to { opacity: 0; transform: translateY(-14px) scale(0.98); visibility: hidden; }
+}
+
+.login-marca-texto {
+  font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+  color: var(--texto-sec); text-transform: lowercase;
+}
+.login-nome-wrap {
+  position: relative; display: flex; align-items: baseline; gap: 8px;
+  justify-content: center; margin-top: 2px;
+}
+.login-nome {
+  margin: 0; font-size: 46px; font-weight: 700; letter-spacing: -0.03em;
+  color: var(--texto);  /* estrela na MESMA cor do nome */
+}
+.login-estrela {
+  align-self: flex-start; margin-top: -4px;
+  font-size: 22px; color: var(--texto);  /* mesma cor do nome (preto/tema) */
+  animation: estrela-brilho 2.4s ease-in-out infinite;
+}
+@keyframes estrela-brilho {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.18) rotate(15deg); opacity: 0.75; }
+}
+.login-icone {
+  display: block; margin: 22px auto 6px;
+  border-radius: 28px; box-shadow: var(--sombra-forte);
+}
+.login-sub { margin: 4px 0 24px; font-size: 13.5px; color: var(--texto-sec); }
+
+.login-form { text-align: left; display: flex; flex-direction: column; }
+.login-label {
+  font-size: 12.5px; font-weight: 600; color: var(--texto-sec);
+  margin: 12px 0 6px;
+}
+.login-form .campo-input { text-align: left; }
+.login-erro {
+  margin: 10px 0 0; font-size: 13px; font-weight: 600; color: var(--coral-forte);
+}
+.login-card.erro { animation: login-shake 0.4s ease; }
+@keyframes login-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-9px); }
+  40%, 80% { transform: translateX(9px); }
+}
+.login-btn { margin-top: 20px; padding: 14px; font-size: 15.5px; border-radius: 14px; }
+
+/* app revelado após login */
+#app.entrando { animation: app-entrada 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+@keyframes app-entrada {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+#app[hidden] { display: none; }

@@ -223,6 +223,52 @@
     try { localStorage.setItem("tema", novo); } catch (e) {}
   }
 
+  /* ---------- Login (portão de cortesia, client-side) ----------
+     Credenciais definidas pelo dono da ferramenta. Ofuscadas (não em texto
+     puro) — mas client-side NÃO é cofre: quem abre o DevTools as encontra.
+     Serve para "quem tem o link + a senha usa". */
+  const _c = { u: "RHJhLiBJc2FuYQ==", p: "TWF0ZXJuaWRhZGUxMjM0" };  // base64
+  function credOk(u, p) {
+    try { return btoa(u.trim()) === _c.u && btoa(p) === _c.p; }
+    catch (e) { return false; }
+  }
+  function revelarApp() {
+    const login = $("#login-screen");
+    const app = $("#app");
+    login.classList.add("saindo");
+    setTimeout(function () {
+      login.hidden = true;
+      app.hidden = false;
+      app.classList.add("entrando");
+      /* garante o form renderizado ao revelar */
+      if (SECTIONS.length && !secaoAtiva) ativar(SECTIONS[0].id);
+    }, 420);
+  }
+  function initLogin() {
+    const form = $("#login-form");
+    if (!form) return;
+    /* já logado nesta aba? entra direto */
+    try {
+      if (sessionStorage.getItem("isana_auth") === "1") { revelarApp(); return; }
+    } catch (e) {}
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      const u = $("#login-user").value;
+      const p = $("#login-pass").value;
+      if (credOk(u, p)) {
+        $("#login-erro").hidden = true;
+        try { sessionStorage.setItem("isana_auth", "1"); } catch (e) {}
+        revelarApp();
+      } else {
+        const card = $("#login-card");
+        $("#login-erro").hidden = false;
+        card.classList.remove("erro");
+        void card.offsetWidth; /* reinicia a animação */
+        card.classList.add("erro");
+      }
+    });
+  }
+
   /* ---------- Boot ---------- */
   document.addEventListener("DOMContentLoaded", function () {
     try {
@@ -235,8 +281,8 @@
     $("#btn-limpar").addEventListener("click", limpar);
     $("#btn-tema").addEventListener("click", tema);
 
-    /* Obstetrícia no topo: abre direto na primeira seção (Puerpério). */
-    if (SECTIONS.length) ativar(SECTIONS[0].id);
+    /* Login primeiro; a calculadora só monta após o acesso. */
+    initLogin();
 
     /* PWA */
     if ("serviceWorker" in navigator) {

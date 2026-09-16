@@ -38,7 +38,31 @@
   <nav id="nav" class="nav-lateral" aria-label="Seções do documento"></nav>
   <div id="nav-overlay" class="nav-overlay" hidden></div>
 
-  <main class="layout">
+  <!-- ============ TELA DE LOGIN (porta de entrada) ============ -->
+  <section id="login-screen" class="login-screen" aria-label="Acesso">
+    <div class="login-card" id="login-card">
+      <span class="login-marca-texto">invertexto</span>
+      <div class="login-nome-wrap">
+        <span class="login-estrela" aria-hidden="true">✦</span>
+        <h1 class="login-nome">Isana</h1>
+      </div>
+      <img class="login-icone" src="assets/marca-isana.svg" alt="" width="120" height="120" />
+      <p class="login-sub">Anamnese de Enfermaria · Obstetrícia</p>
+
+      <form id="login-form" class="login-form" novalidate>
+        <label class="login-label" for="login-user">Login</label>
+        <input id="login-user" class="campo-input" type="text" autocomplete="username"
+               placeholder="Dra. Isana" />
+        <label class="login-label" for="login-pass">Senha</label>
+        <input id="login-pass" class="campo-input" type="password" autocomplete="current-password"
+               placeholder="••••••••••••" />
+        <p id="login-erro" class="login-erro" role="alert" hidden>Login ou senha incorretos.</p>
+        <button type="submit" class="btn btn-pri login-btn">Entrar</button>
+      </form>
+    </div>
+  </section>
+
+  <main class="layout" id="app" hidden>
     <!-- formulário -->
     <section class="coluna coluna-form" aria-label="Questionário">
       <div id="form-root"></div>

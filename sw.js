@@ -8,7 +8,8 @@ const ASSETS = [
   "./js/schema.js",
   "./js/app.js",
   "./manifest.webmanifest",
-  "./assets/icon.svg"
+  "./assets/icon.svg",
+  "./assets/marca-isana.svg"
 ];
 
 self.addEventListener("install", (e) => {
